@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>H1E 謎解きゲーム</title>
+    <link rel="stylesheet" href="quiz_page_1.css" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 50px;
+        background-color: #f4f4f4;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #message {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+      }
+      .answer-form {
+        margin-top: 20px;
+      }
+      .answer-form input {
+        padding: 8px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+      }
+      #submitAnswer {
+        padding: 8px 15px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #resultMessage {
+        margin-top: 10px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>謎解きを開始</h1>
+    <p>ボタンを押して、問題がある場所の近くにいるか確認しよう。</p>
+
+    <button id="startButton">位置情報を確認する</button>
+
+    <div id="message"></div>
+
+    <div id="quizContainer" style="display: none">
+      <h2>正解！問題です</h2>
+      <img id="quizImage" src="quiz_1.png" alt="謎解きの問題画像" />
+      <p>この画像に隠されたヒントを解読しよう。</p>
+
+      <div class="answer-form">
+        <input type="text" id="answerInput" placeholder="ここに答えを入力" />
+        <button id="submitAnswer">解答する</button>
+      </div>
+      <div id="resultMessage"></div>
+    </div>
+
+    <script>
+      // 目的地となる場所の緯度と経度を設定
+      // 例：東京駅の緯度と経度。ここに実際の場所の座標を入れてください。
+      const targetLat = 35.65902969014675;
+      const targetLon = 139.85698018841887;
+      const requiredDistance = 100; // 許容距離（メートル）
+
+      // 正解の文字列を設定
+      const correctAnswer = "答え"; // 正解の文字列を正確に記述してください
+
+      document
+        .getElementById("startButton")
+        .addEventListener("click", function () {
+          if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+
+                // ハーバーサインの公式で距離を計算
+                const R = 6371e3;
+                const φ1 = (userLat * Math.PI) / 180;
+                const φ2 = (targetLat * Math.PI) / 180;
+                const Δφ = ((targetLat - userLat) * Math.PI) / 180;
+                const Δλ = ((targetLon - userLon) * Math.PI) / 180;
+                const a =
+                  Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) *
+                    Math.cos(φ2) *
+                    Math.sin(Δλ / 2) *
+                    Math.sin(Δλ / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const distance = R * c;
+
+                document.getElementById(
+                  "message"
+                ).innerText = `目的地までの距離は ${distance.toFixed(
+                  2
+                )}m です。`;
+
+                if (distance <= requiredDistance) {
+                  // 許容範囲内なら謎解きコンテンツを表示
+                  document.getElementById("quizContainer").style.display =
+                    "block";
+                  alert("おめでとう！あなたは目標地点の近くにいます。");
+                } else {
+                  // 範囲外なら非表示
+                  document.getElementById("quizContainer").style.display =
+                    "none";
+                  alert("もう少し近づいてみよう！");
+                }
+              },
+              (error) => {
+                let errorMessage = "位置情報の取得に失敗しました。";
+                switch (error.code) {
+                  case error.PERMISSION_DENIED:
+                    errorMessage = "位置情報の利用が許可されていません。";
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    errorMessage = "位置情報が取得できませんでした。";
+                    break;
+                  case error.TIMEOUT:
+                    errorMessage = "位置情報の取得がタイムアウトしました。";
+                    break;
+                }
+                document.getElementById("message").innerText = errorMessage;
+                document.getElementById("quizContainer").style.display = "none";
+              }
+            );
+          } else {
+            document.getElementById("message").innerText =
+              "お使いのブラウザは位置情報サービスをサポートしていません。";
+            document.getElementById("quizContainer").style.display = "none";
+          }
+        });
+
+      document
+        .getElementById("submitAnswer")
+        .addEventListener("click", function () {
+          const userAnswer = document.getElementById("answerInput").value;
+          const resultMessageElement = document.getElementById("resultMessage");
+
+          if (userAnswer === correctAnswer) {
+            resultMessageElement.innerText = "正解！次の問題に進みます。";
+            resultMessageElement.style.color = "green";
+            document.getElementById("submitAnswer").disabled = true; // ボタンを無効化
+            setTimeout(() => {
+              window.location.href = "quiz_page_2.html"; // 遷移先のファイル名を変更
+            }, 3000);
+          } else {
+            resultMessageElement.innerText =
+              "不正解です。もう一度考えてみましょう。";
+            resultMessageElement.style.color = "red";
+          }
+        });
+    </script>
+  </body>
+</html>

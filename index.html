@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>H1E 謎解き</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <p>H1E 謎解き</p>
+    </header>
+
+    <main>
+      <h1>ようこそ</h1>
+      <p>
+        この謎解きは中学棟・共通棟・高校棟の指定した場所に近づくと問題が表示されます
+      </p>
+
+      <div class="container">
+        <h2></h2>
+        <form>
+          <div class="form-group">
+            <label for="nickname">ニックネーム (必須項目)</label>
+            <input type="text" id="nickname" name="nickname" required />
+          </div>
+          <div class="form-group">
+            <label for="how_to_participate"
+              >どのようにこの謎解きを行うか (必須項目)</label
+            >
+            <select id="how_to_participate" name="how_to_participate" required>
+              <option value="" disabled selected>選択してください</option>
+              <option value="option1">選択肢1</option>
+              <option value="option2">選択肢2</option>
+            </select>
+          </div>
+          <button type="submit">謎解きを開始する</button>
+        </form>
+      </div>
+    </main>
+
+    <script>
+      // フォーム要素とボタン要素を取得
+      const form = document.querySelector("form");
+      const startButton = document.querySelector('button[type="submit"]');
+
+      // フォームが送信されたときのイベントリスナーを設定
+      form.addEventListener("submit", function (event) {
+        // フォームのデフォルトの送信動作（ページリロード）を停止
+        event.preventDefault();
+
+        // フォームの入力値を取得
+        const nickname = document.getElementById("nickname").value;
+        const howToParticipate =
+          document.getElementById("how_to_participate").value;
+
+        // 入力チェック（ニックネームとドロップダウンの両方が入力されているか）
+        if (nickname.trim() === "" || howToParticipate === "") {
+          // 入力不備がある場合はアラートを表示し、以降の処理を停止
+          alert("ニックネームと参加方法の両方を入力してください。");
+          return;
+        }
+
+        // フォームが有効な場合、ボタンを無効化して二重送信を防止
+        startButton.disabled = true;
+
+        // 指定のページに遷移
+        window.location.href = "quiz_page_1.html";
+      });
+    </script>
+  </body>
+</html>
